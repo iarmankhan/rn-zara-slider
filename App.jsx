@@ -1,5 +1,6 @@
 import * as React from 'react';
-import {Animated, Dimensions, Image, StyleSheet, TouchableOpacity, View} from 'react-native';
+import BottomSheet, {BottomSheetScrollView} from "@gorhom/bottom-sheet";
+import {Animated, Dimensions, Image, StyleSheet, Text, TouchableOpacity, View} from 'react-native';
 
 const {width, height} = Dimensions.get('screen');
 
@@ -31,12 +32,12 @@ const App = () => {
     const scrollY = React.useRef(new Animated.Value(0)).current;
 
     const scrollToIndex = (index) => {
-        if(ref && ref.current){
+        if (ref && ref.current) {
             ref.current.scrollToIndex({index})
         }
     }
 
-    return <View>
+    return <View style={{flex: 1}}>
         <View style={styles.imageContainer}>
             <Animated.FlatList
                 ref={ref}
@@ -61,19 +62,34 @@ const App = () => {
             <View style={styles.pagination}>
                 {images.map((_, index) => (
                     <TouchableOpacity key={index} onPress={() => scrollToIndex(index)}>
-                    <View  style={styles.dot} />
+                        <View style={styles.dot}/>
                     </TouchableOpacity>
                 ))}
                 <Animated.View
-                    style={[styles.dotIndicator, {transform: [
-                            {translateY: Animated.divide(scrollY, ITEM_HEIGHT).interpolate({
+                    style={[styles.dotIndicator, {
+                        transform: [
+                            {
+                                translateY: Animated.divide(scrollY, ITEM_HEIGHT).interpolate({
                                     inputRange: [0, 1],
                                     outputRange: [0, DOT_INDICATOR_SIZE]
-                                })}
-                        ]}]}
+                                })
+                            }
+                        ]
+                    }]}
                 />
             </View>
         </View>
+        <BottomSheet snapPoints={[height - ITEM_HEIGHT, height]}>
+            <BottomSheetScrollView style={{backgroundColor: 'white'}} contentContainerStyle={{padding: 20}}>
+                <Text style={{fontWeight: 'bold', fontSize: 16, textTransform: 'uppercase'}}>{product.title}</Text>
+                <Text style={{fontSize: 16}}>{product.price}</Text>
+                <View style={{marginVertical: 20}}>
+                    {product.description.map((text, index) => (
+                        <Text key={index} style={{marginBottom: 10, lineHeight: 22}}>{text}</Text>
+                    ))}
+                </View>
+            </BottomSheetScrollView>
+        </BottomSheet>
     </View>
 }
 
@@ -88,9 +104,9 @@ const styles = StyleSheet.create({
         resizeMode: 'cover'
     },
     pagination: {
-      position: 'absolute',
-      top: ITEM_HEIGHT / 2,
-      left: 20,
+        position: 'absolute',
+        top: ITEM_HEIGHT / 2,
+        left: 20,
     },
     dot: {
         width: DOT_SIZE,
